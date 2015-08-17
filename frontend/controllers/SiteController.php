@@ -3,6 +3,7 @@ namespace frontend\controllers;
 
 use Yii;
 use common\models\LoginForm;
+use common\models\User;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
@@ -67,6 +68,10 @@ class SiteController extends Controller
 
     public function actionIndex()
     {
+        
+  var_dump(User::findByUsernameAndPassword( 'admin', 'admin'));
+              
+                  
         return $this->render('index');
     }
 

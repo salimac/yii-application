@@ -1,11 +1,12 @@
 <?php
-namespace common\models;
+namespace api\modules\v1\models;
 
 use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
+
 
 /**
  * User model
@@ -20,6 +21,7 @@ use yii\web\IdentityInterface;
  * @property integer $created_at
  * @property integer $updated_at
  * @property string $password write-only password
+ * @property integer $accesstoken
  */
 class User extends ActiveRecord implements IdentityInterface
 {
@@ -54,7 +56,18 @@ class User extends ActiveRecord implements IdentityInterface
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
         ];
     }
-   
+    public static function findByUsernameAndPassword($username,$password)
+    {   
+            
+        if(self::findByUsername($username))
+        { if(Yii::$app->security->validatePassword($password, Yii::$app->security->generatePasswordHash($password)))
+                return self::findByUsername($username);
+            else
+                null;
+        }
+         else
+            null;
+    }
     /**
      * @inheritdoc
      */
@@ -68,7 +81,7 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
+        return static::findOne(['access_token' => $token, 'status' => self::STATUS_ACTIVE]);
     }
 
     /**
@@ -79,10 +92,8 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findByUsername($username)
     {
-    
         return static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
     }
-    
 
     /**
      * Finds user by password reset token
